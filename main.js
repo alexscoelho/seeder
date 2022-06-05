@@ -2,7 +2,7 @@ const customers = require("./customers.json");
 const products = require("./products.json");
 const baseUrl = "http://localhost:3333";
 
-const customerList = customers.QueryResponse.Customer;
+const customerList = customers;
 const productList = products.QueryResponse.Item;
 
 const [seedArg] = process.argv.slice(2);
@@ -25,30 +25,37 @@ function seedCustomers(customers) {
 
 const createCustomer = (customer) => {
   const customerName = customer.DisplayName || customer.CompanyName;
+  const randomNumber = Math.floor(Math.random() * 2000);
+  const customerPayload = {
+    name:
+      customer?.GivenName + " " + customer?.FamilyName ||
+      customer?.FullyQualifiedName ||
+      "N/A",
+    phone: customer?.PrimaryPhone?.FreeFormNumber || "N/A",
+    email:
+      customer?.PrimaryEmailAddr?.Address || `updateme${randomNumber}@mail.com`,
+    city: customer?.BillAddr?.City || "N/A",
+    state: customer?.BillAddr?.CountrySubDivisionCode || "N/A",
+    address: customer?.BillAddr?.Line1 || "N/A",
+    address2: customer?.BillAddr?.Country || "N/A",
+    tierLevel: "default",
+    company: customer?.CompanyName || customerName,
+    zipCode: parseInt(customer?.BillAddr?.PostalCode) || 0,
+    quickbooksId: customer?.Id,
+  };
   fetch(`${baseUrl}/customers`, {
     method: "POST",
-    body: JSON.stringify({
-      name: customer?.GivenName + " " + customer?.FamilyName || "N/A",
-      phone: customer?.PrimaryPhone?.FreeFormNumber || "N/A",
-      email: customer?.PrimaryEmailAddr?.Address || "N/A",
-      city: customer?.BillAddr?.City || "N/A",
-      state: customer?.BillAddr?.CountrySubDivisionCode || "N/A",
-      address: customer?.BillAddr?.Line1 || "N/A",
-      address2: customer?.BillAddr?.Country || "N/A",
-      tierLevel: "default",
-      company: customer?.CompanyName || customerName,
-      zipCode: parseInt(customer?.BillAddr?.PostalCode) || 0,
-      quickbooksId: customer?.Id,
-    }),
+    body: JSON.stringify(customerPayload),
     headers: { "Content-Type": "application/json" },
   })
     .then((resp) => resp.json(resp))
     .then((data) => {
-      if (data.statusCode > 400)
+      if (data.statusCode > 400) {
         console.log(
-          `Customer "${customerName}"" could not be created, either exists or have missing fields`
+          `Customer "${customerName}" could not be created, either exists or have missing fields, his payload is:`,
+          JSON.stringify(customerPayload)
         );
-      else console.log(data);
+      } else console.log(data);
     });
 };
 

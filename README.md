@@ -13,5 +13,5 @@ In the root of your project add a "customers.json" and "products.json" files and
 $ node main.js products
 
 # to seed customers
-$ node main.js products
+$ node main.js customers
 ```
