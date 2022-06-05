@@ -52,7 +52,7 @@ const createCustomer = (customer) => {
     .then((data) => {
       if (data.statusCode > 400) {
         console.log(
-          `Customer "${customerName}" could not be created, either exists or have missing fields, his payload is:`,
+          `Customer "${customerName}" could not be created, either exists or have missing fields, the payload is:`,
           JSON.stringify(customerPayload)
         );
       } else console.log(data);
